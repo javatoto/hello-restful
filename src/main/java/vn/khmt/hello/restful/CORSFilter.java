@@ -16,10 +16,10 @@ public class CORSFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
         MultivaluedMap<String, Object> headers = responseContext.getHeaders();
-        headers.add("Access-Control-Allow-Origin", "171.233.164.119");
+        headers.add("Access-Control-Allow-Origin", "*");
         //headers.add("Access-Control-Allow-Origin", "http://podcastpedia.org"); //allows CORS requests only coming from podcastpedia.org		
         headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-        //headers.add("Access-Control-Allow-Credentials", "true");
-        headers.add("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Codingpedia");
+        headers.add("Access-Control-Allow-Credentials", "true");
+        headers.add("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Codingpedia, Authorization");
     }
 }
