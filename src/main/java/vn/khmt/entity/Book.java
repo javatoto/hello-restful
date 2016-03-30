@@ -1,4 +1,4 @@
-package vn.khmt.hello.restful;
+package vn.khmt.entity;
 
 /**
  *
@@ -6,19 +6,19 @@ package vn.khmt.hello.restful;
  */
 public class Book {
 
-    long id;
-    String title;
-    String author;
-    int year;
+    private int id;
+    private String title;
+    private Author author;
+    private int year;
 
     public Book() {
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -30,11 +30,11 @@ public class Book {
         this.title = title;
     }
 
-    public String getAuthor() {
+    public Author getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(Author author) {
         this.author = author;
     }
 

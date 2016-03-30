@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>vn.khmt</groupId>
-    <artifactId>hello-restful</artifactId>
+    <artifactId>restful-heroku</artifactId>
     <version>0.1</version>
     <packaging>war</packaging>
-    <name>hello-restful</name>
+    <name>restful-heroku</name>
 
     <properties>
         <jersey.version>2.22.2</jersey.version>
@@ -39,7 +39,7 @@
     </dependencies>
 
     <build>
-        <finalName>heroku</finalName>
+        <finalName>restful</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

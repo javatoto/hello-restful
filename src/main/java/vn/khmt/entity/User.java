@@ -1,4 +1,4 @@
-package vn.khmt.hello.restful;
+package vn.khmt.entity;
 
 /**
  *

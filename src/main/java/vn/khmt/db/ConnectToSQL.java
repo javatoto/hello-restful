@@ -9,8 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import vn.khmt.hello.restful.Book;
-import vn.khmt.hello.restful.User;
+import vn.khmt.entity.Author;
+import vn.khmt.entity.Book;
+import vn.khmt.entity.User;
 
 /**
  *
@@ -58,73 +59,76 @@ public class ConnectToSQL {
 
     public Book getBook(int id) {
         try {
-            String SQL = "SELECT id, title, author, year FROM dbo.Book WHERE id = " + id;
+            String SQL = "SELECT id, title, year FROM public.book WHERE id = " + id;
+            String authorSQL = "SELECT id, name, age FROM public.author WHERE id IN (SELECT author_id FROM public.book_author WHERE book_id = " + id + ")";
             Statement stmt = this.dbConnection.createStatement();
             ResultSet rs = stmt.executeQuery(SQL);
             if (rs.next()) {
                 Book res = new Book();
-                res.setId(rs.getLong(1));
+                res.setId(rs.getInt(1));
                 res.setTitle(rs.getString(2));
-                res.setAuthor(rs.getString(3));
-                res.setYear(rs.getInt(4));
+                res.setYear(rs.getInt(3));
+
+                stmt = this.dbConnection.createStatement();
+                ResultSet rs2 = stmt.executeQuery(authorSQL);
+                if (rs2.next()) {
+                    Author a = new Author();
+                    a.setId(rs2.getInt(1));
+                    a.setName(rs2.getString(2));
+                    a.setAge(rs2.getInt(3));
+                    res.setAuthor(a);
+                }
                 return res;
             }
         } catch (SQLException sqle) {
             System.err.println(sqle.getMessage());
-        } finally {
-            if (this.dbConnection != null) {
-                try {
-                    this.dbConnection.close();
-                } catch (SQLException sqle) {
-                    System.err.println(sqle.getMessage());
-                }
-            }
         }
         return null;
     }
 
-    public List<Book> getBookList() {
+    public List<Book> getBookList(int page) {
         try {
-            String SQL = "SELECT id, title, author, year FROM dbo.Book";
+            String SQL = "SELECT id, title, year FROM public.book ORDER BY title LIMIT 10 OFFSET " + (page - 1) * 10;
+
             Statement stmt = this.dbConnection.createStatement();
             ResultSet rs = stmt.executeQuery(SQL);
 
-            // Iterate through the data in the result set and display it.  
             List<Book> l = new ArrayList<>();
             while (rs.next()) {
                 Book res = new Book();
-                res.setId(rs.getLong(1));
+                res.setId(rs.getInt(1));
                 res.setTitle(rs.getString(2));
-                res.setAuthor(rs.getString(3));
-                res.setYear(rs.getInt(4));
+                res.setYear(rs.getInt(3));
+
+                String authorSQL = "SELECT id, name, age FROM public.author WHERE id IN (SELECT author_id FROM public.book_author WHERE book_id = " + rs.getInt(1) + ")";
+                stmt = this.dbConnection.createStatement();
+                ResultSet rs2 = stmt.executeQuery(authorSQL);
+                if (rs2.next()) {
+                    Author a = new Author();
+                    a.setId(rs2.getInt(1));
+                    a.setName(rs2.getString(2));
+                    a.setAge(rs2.getInt(3));
+                    res.setAuthor(a);
+                }
                 l.add(res);
             }
             return l;
         } catch (SQLException sqle) {
             System.err.println(sqle.getMessage());
-        } finally {
-            if (this.dbConnection != null) {
-                try {
-                    this.dbConnection.close();
-                } catch (SQLException sqle) {
-                    System.err.println(sqle.getMessage());
-                }
-            }
         }
         return null;
     }
 
     public boolean createBook(Book b) {
-        Connection con = null;
         PreparedStatement preparedStatement = null;
-        String insertTableSQL = "INSERT INTO dbo.Book(id, title, author, year) VALUES(?,?,?,?)";
+        String insertTableSQL = "INSERT INTO public.book(id, title, year) VALUES(?,?,?)";
         try {
             if (b != null) {
                 preparedStatement = this.dbConnection.prepareStatement(insertTableSQL);
                 preparedStatement.setLong(1, b.getId());
                 preparedStatement.setString(2, b.getTitle());
-                preparedStatement.setString(3, b.getAuthor());
-                preparedStatement.setInt(4, b.getYear());
+                //preparedStatement.setString(3, b.getAuthor());
+                preparedStatement.setInt(3, b.getYear());
             }
 
             // execute insert SQL stetement
@@ -142,13 +146,6 @@ public class ConnectToSQL {
                     System.err.println(sqle.getMessage());
                 }
             }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException sqle) {
-                    System.err.println(sqle.getMessage());
-                }
-            }
         }
         return false;
     }
@@ -156,8 +153,7 @@ public class ConnectToSQL {
     public User getUser(String username, String password) {
         try {
             if (username != null && password != null) {
-                String SQL = "SELECT id, username, password, email, status, name FROM dbo.Uzer WHERE username = '" + username + "' AND password = '" + password + "';";
-                System.out.println(SQL);
+                String SQL = "SELECT id, username, password, email, status, name FROM public.user WHERE username = '" + username + "' AND password = '" + password + "';";
                 Statement stmt = this.dbConnection.createStatement();
                 ResultSet rs = stmt.executeQuery(SQL);
 
@@ -176,16 +172,108 @@ public class ConnectToSQL {
             }
         } catch (SQLException sqle) {
             System.err.println(sqle.getMessage());
+        }
+        return null;
+    }
+
+    public User getUser(int id) {
+        try {
+            String SQL = "SELECT id, username, email, name, status FROM public.user WHERE id = " + id;
+            Statement stmt = this.dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(SQL);
+
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt(1));
+                u.setUsername(rs.getString(2));
+                u.setEmail(rs.getString(3));
+                u.setName(rs.getString(4));
+                u.setStatus(rs.getInt(5));
+                return u;
+            }
+        } catch (SQLException sqle) {
+            System.err.println(sqle.getMessage());
+        }
+        return null;
+    }
+
+    public List<User> getUserList(int page) {
+        try {
+            String SQL = "SELECT id, username, email, name, status FROM public.user ORDER BY name LIMIT 10 OFFSET " + (page - 1) * 10;
+            Statement stmt = this.dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(SQL);
+
+            List<User> res = new ArrayList<>();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt(1));
+                u.setUsername(rs.getString(2));
+                u.setEmail(rs.getString(3));
+                u.setName(rs.getString(4));
+                u.setStatus(rs.getInt(5));
+                res.add(u);
+            }
+            return res;
+        } catch (SQLException sqle) {
+            System.err.println(sqle.getMessage());
+        }
+        return null;
+    }
+
+    public boolean addUser(String username, String password, String email, int status, String name) {
+        try {
+            String SQL = "INSERT INTO public.user VALUES ((SELECT MAX(id) + 1 FROM public.user),'" + username + "','" + password + "','" + email + "'," + status + ",'" + name + "');";
+            Statement stmt = this.dbConnection.createStatement();
+            return stmt.execute(SQL);
+        } catch (SQLException sqle) {
+            System.err.println(sqle.getMessage());
+        }
+        return false;
+    }
+
+    public boolean renameUser(int id, String name) {
+        PreparedStatement preparedStatement = null;
+        String updateTableSQL = "UPDATE public.user SET name = ? WHERE id = ?";
+        try {
+            //con = getDBConnection();
+            if (name != null) {
+                preparedStatement = this.dbConnection.prepareStatement(updateTableSQL);
+                preparedStatement.setString(1, name);
+                preparedStatement.setInt(2, id);
+            }
+
+            // execute insert SQL stetement
+            if (preparedStatement != null) {
+                System.out.println("updateName : " + updateTableSQL);
+                int res = preparedStatement.executeUpdate();
+                return res == 1;
+            }
+        } catch (SQLException sqle) {
+            System.err.println(sqle.getMessage());
         } finally {
-            if (this.dbConnection != null) {
+            if (preparedStatement != null) {
                 try {
-                    this.dbConnection.close();
+                    preparedStatement.close();
                 } catch (SQLException sqle) {
                     System.err.println(sqle.getMessage());
                 }
             }
         }
-        return null;
+        return false;
     }
 
+    public int countUser() {
+        try {
+            String SQL = "SELECT COUNT(*) FROM public.user;";
+            Statement stmt = this.dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(SQL);
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException sqle) {
+            System.err.println(sqle.getMessage());
+        }
+        return 0;
+    }
 }
