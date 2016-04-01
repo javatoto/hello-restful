@@ -47,7 +47,7 @@ public class ConnectToSQL {
                     props.put("user", user);
                     props.put("password", pwd);
                     props.put("sslmode", "require");
-                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=require&user=" + user + "&password=" + pwd);
+                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=disable&user=" + user + "&password=" + pwd);
                 }
                 return dbConnection;
             } catch (ClassNotFoundException | SQLException ex) {
