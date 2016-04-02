@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import vn.khmt.entity.Author;
 import vn.khmt.entity.Book;
 import vn.khmt.entity.User;
@@ -44,7 +43,8 @@ public class ConnectToSQL {
                 } else if (type.equalsIgnoreCase(POSTGRESQL)) {
                     Class.forName(POSTGRESQLDRIVER);
                     // deploy on heroku -> sslmode=disable
-                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=require&user=" + user + "&password=" + pwd);
+                    // deploy on glassfish -> sslmode=require
+                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=disable&user=" + user + "&password=" + pwd);
                 }
                 return dbConnection;
             } catch (ClassNotFoundException | SQLException ex) {

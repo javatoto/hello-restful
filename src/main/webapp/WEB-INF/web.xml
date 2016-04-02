@@ -24,7 +24,7 @@
     
     <!-- uncomment the following block when deploy on Tomcat -->
     <!-- comment the following block when deploy on Glassfish -->
-    <!--filter>
+    <filter>
         <filter-name>CorsFilter</filter-name>
         <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
         <init-param>
@@ -55,7 +55,7 @@
     <filter-mapping>
         <filter-name>CorsFilter</filter-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping-->
+    </filter-mapping>
     
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
