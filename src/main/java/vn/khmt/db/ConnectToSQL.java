@@ -43,11 +43,8 @@ public class ConnectToSQL {
                     dbConnection = DriverManager.getConnection("jdbc:mysql://" + host + ":3306/" + dbname, user, pwd);
                 } else if (type.equalsIgnoreCase(POSTGRESQL)) {
                     Class.forName(POSTGRESQLDRIVER);
-                    Properties props = new Properties();
-                    props.put("user", user);
-                    props.put("password", pwd);
-                    props.put("sslmode", "require");
-                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=disable&user=" + user + "&password=" + pwd);
+                    // deploy on heroku -> sslmode=disable
+                    dbConnection = DriverManager.getConnection("jdbc:postgresql://" + host + ":5432/" + dbname + "?sslmode=require&user=" + user + "&password=" + pwd);
                 }
                 return dbConnection;
             } catch (ClassNotFoundException | SQLException ex) {

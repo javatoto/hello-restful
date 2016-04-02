@@ -38,7 +38,7 @@ public class BookService {
         b.setAuthor(a);
         b.setTitle("Toi thay hoa vang");
         b.setYear(2012);
-        return Response.status(Response.Status.OK).entity(b).build();
+        return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity(b).build());
     }
 
     @GET
@@ -47,25 +47,25 @@ public class BookService {
     public Response book(@PathParam("id") int id) {
         Book b = dbCon.getBook(id);
         if (b != null) {
-            return Response.status(Response.Status.OK).entity(b).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity(b).build());
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity(null).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.NOT_FOUND).entity(null).build());
         }
     }
 
     @GET
-    @Path("/all/{page}")
+    @Path("/all/{page : (\\w+)?}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response bookList(@PathParam("page") int page) {
-        if (page < 0) {
+    public Response bookList(@PathParam("page") Integer page) {
+        if (page == null || page < 0) {
             page = 1;
         }
         List<Book> bl = dbCon.getBookList(page);
         if (bl != null) {
-            return Response.status(Response.Status.OK).entity(new GenericEntity<List<Book>>(bl) {
-            }).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity(new GenericEntity<List<Book>>(bl) {
+            }).build());
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity(null).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.NOT_FOUND).entity(null).build());
         }
         //return Response.status(Response.Status.OK).entity(bl).build();
     }
@@ -75,7 +75,7 @@ public class BookService {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response receiveMessage(String message) {
         System.out.println("Message received = " + message);
-        return Response.status(Response.Status.CREATED).entity("Message received").build();
+        return CORSFilter.configResponseHeader(Response.status(Response.Status.CREATED).entity("Message received").build());
     }
 
     @POST
@@ -83,6 +83,6 @@ public class BookService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response receiveBook(Book b) {
         dbCon.createBook(b);
-        return Response.status(Response.Status.CREATED).entity("Book created").build();
+        return CORSFilter.configResponseHeader(Response.status(Response.Status.CREATED).entity("Book created").build());
     }
 }

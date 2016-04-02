@@ -37,32 +37,32 @@ public class UserService {
     private static final ConnectToSQL dbCon = new ConnectToSQL(TYPE, HOST, DBNAME, USER, PASS);
 
     @GET
-    @Path("/{param}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("param") int id, @Context HttpHeaders httpHeaders) {
+    public Response getUser(@PathParam("id") int id, @Context HttpHeaders httpHeaders) {
         String authCredentials = httpHeaders.getRequestHeaders().getFirst(AUTHENTICATION_HEADER);
         User authenticated = authenticate(authCredentials);
         if (authenticated != null) {
             if (authenticated.getId() == id || authenticated.getStatus() == ADMIN_STATUS) {
                 User u = dbCon.getUser(id);
                 if (u != null) {
-                    return Response.status(Response.Status.OK).entity(u).build();
+                    return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity(u).build());
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity(null).build();
+                    return CORSFilter.configResponseHeader(Response.status(Response.Status.NOT_FOUND).entity(null).build());
                 }
             } else {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(null).build();
+                return CORSFilter.configResponseHeader(Response.status(Response.Status.UNAUTHORIZED).entity(null).build());
             }
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(null).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.FORBIDDEN).entity(null).build());
         }
     }
 
     @GET
-    @Path("/all/{page}")
+    @Path("/all/{page : (\\w+)?}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserList(@PathParam("page") int page, @Context HttpHeaders httpHeaders) {
-        if (page <= 0) {
+    public Response getUserList(@PathParam("page") Integer page, @Context HttpHeaders httpHeaders) {
+        if (page == null || page <= 0) {
             page = 1;
         }
         String authCredentials = httpHeaders.getRequestHeaders().getFirst(AUTHENTICATION_HEADER);
@@ -71,16 +71,16 @@ public class UserService {
             if (authenticated.getStatus() == ADMIN_STATUS) {
                 List<User> res = dbCon.getUserList(page);
                 if (res != null) {
-                    return Response.status(Response.Status.OK).entity(new GenericEntity<List<User>>(res) {
-                    }).build();
+                    return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity(new GenericEntity<List<User>>(res) {
+                    }).build());
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity(null).build();
+                    return CORSFilter.configResponseHeader(Response.status(Response.Status.NOT_FOUND).entity(null).build());
                 }
             } else {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(null).build();
+                return CORSFilter.configResponseHeader(Response.status(Response.Status.UNAUTHORIZED).entity(null).build());
             }
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(null).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.FORBIDDEN).entity(null).build());
         }
     }
 
@@ -90,7 +90,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(User u) {
         boolean res = dbCon.addUser(u.getUsername(), u.getPassword(), u.getEmail(), u.getStatus(), u.getName());
-        return Response.status(201).entity("{\"result\":\"" + res + "\"}").build();
+        return CORSFilter.configResponseHeader(Response.status(201).entity("{\"result\":\"" + res + "\"}").build());
     }
 
     @PUT
@@ -103,12 +103,12 @@ public class UserService {
         if (authenticated != null) {
             if (authenticated.getId() == u.getId() || authenticated.getUsername().equals(u.getUsername())) {
                 boolean output = dbCon.renameUser(authenticated.getId(), u.getName());
-                return Response.status(Response.Status.OK).entity("{\"result\":\"" + output + "\"}").build();
+                return CORSFilter.configResponseHeader(Response.status(Response.Status.OK).entity("{\"result\":\"" + output + "\"}").build());
             } else {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(null).build();
+                return CORSFilter.configResponseHeader(Response.status(Response.Status.UNAUTHORIZED).entity(null).build());
             }
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(null).build();
+            return CORSFilter.configResponseHeader(Response.status(Response.Status.FORBIDDEN).entity(null).build());
         }
     }
 
